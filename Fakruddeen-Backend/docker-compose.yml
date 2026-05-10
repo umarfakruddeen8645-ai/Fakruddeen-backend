@@ -1,0 +1,24 @@
+# deployment/docker-compose.yml
+version: '3.8'
+
+services:
+  fakruddeen-backend:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - fakruddeen-db
+
+  fakruddeen-db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_DB: fakruddeen
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
