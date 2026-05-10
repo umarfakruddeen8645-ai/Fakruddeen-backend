@@ -1,18 +1,21 @@
-// server/security.js
 const crypto = require('crypto');
 
 // Encrypt data
 function encryptData(data, secretKey) {
-  const cipher = crypto.createCipher('aes-256-cbc', secretKey);
+  const iv = crypto.randomBytes(16);
+  const key = crypto.createHash('sha256').update(secretKey).digest();
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
   let encrypted = cipher.update(data, 'utf8', 'hex');
   encrypted += cipher.final('hex');
-  return encrypted;
+  return { iv: iv.toString('hex'), encrypted };
 }
 
 // Decrypt data
-function decryptData(encrypted, secretKey) {
-  const decipher = crypto.createDecipher('aes-256-cbc', secretKey);
-  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+function decryptData(encryptedData, secretKey) {
+  const iv = Buffer.from(encryptedData.iv, 'hex');
+  const key = crypto.createHash('sha256').update(secretKey).digest();
+  const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+  let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
   return decrypted;
 }

@@ -1,4 +1,3 @@
-// server/test.js
 const axios = require('axios');
 
 async function runTests() {
@@ -9,7 +8,14 @@ async function runTests() {
       email: "test@example.com",
       password: "password123"
     });
-    console.log("User created:", user.data);
+    console.log("✅ User created:", user.data);
+
+    // Test login
+    let login = await axios.post('http://localhost:3000/login', {
+      email: "test@example.com",
+      password: "password123"
+    });
+    console.log("✅ Login successful:", login.data);
 
     // Test task creation
     let task = await axios.post('http://localhost:3000/tasks', {
@@ -17,22 +23,22 @@ async function runTests() {
       description: "Testing Fakruddeen backend",
       status: "pending"
     });
-    console.log("Task created:", task.data);
+    console.log("✅ Task created:", task.data);
 
     // Test troubleshooting
     let diagnostics = await axios.post('http://localhost:3000/troubleshoot', {
       deviceInfo: { cpu: 1, memory: 2, network: "disconnected" }
     });
-    console.log("Diagnostics:", diagnostics.data);
+    console.log("✅ Diagnostics:", diagnostics.data);
 
     // Test security check
     let security = await axios.post('http://localhost:3000/security-check', {
       requestData: { requestsPerSecond: 200, dataSize: 500 }
     });
-    console.log("Security check:", security.data);
+    console.log("✅ Security check:", security.data);
 
   } catch (error) {
-    console.error("Test failed:", error.message);
+    console.error("❌ Test failed:", error.response?.data || error.message);
   }
 }
 
