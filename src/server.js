@@ -6,7 +6,8 @@ const cors = require('cors');
 
 const troubleshooting = require('./server/troubleshooting');
 const { selfImprove } = require('./selfImprove');
-const { transcribeAudio, detectFace } = require('./ai');
+const { transcribeAudio } = require('./ai');          // 👉 kawai transcribe daga ai.js
+const { detectFace } = require('./face');             // 👉 yanzu muna amfani da face-api.js
 const { aiAnomalyDetection } = require('./security');
 const { generateToken, hashPassword, comparePassword } = require('./auth');
 
@@ -110,7 +111,7 @@ app.post('/speech', async (req, res, next) => {
 app.post('/vision', async (req, res, next) => {
   try {
     const { imageFile } = req.body;
-    const result = detectFace(imageFile);
+    const result = await detectFace(imageFile);   // 👉 async/await
     res.json({ vision: result });
   } catch (err) {
     next(err);
