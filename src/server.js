@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const cors = require('cors');
 
-const { runDiagnostics } = require('./troubleshooting');
+const troubleshooting = require('./server/troubleshooting');
 const { selfImprove } = require('./selfImprove');
 const { transcribeAudio, detectFace } = require('./ai');
 const { aiAnomalyDetection } = require('./security');
