@@ -7,8 +7,7 @@
     "start": "node src/server.js",
     "test": "node src/server/test.js",
     "migrate": "npx knex migrate:latest",
-    "rollback": "npx knex migrate:rollback",
-    "postinstall": "npm rebuild deepspeech --build-from-source"
+    "rollback": "npx knex migrate:rollback"
   },
   "author": "Umar Fakruddeen",
   "license": "MIT",
@@ -20,7 +19,6 @@
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "deepspeech": "^0.9.3",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
@@ -28,6 +26,7 @@
     "pg": "^8.11.1",
     "redis": "^5.12.1",
     "face-api.js": "^0.22.2",
-    "canvas": "^2.11.2"
+    "canvas": "^2.11.2",
+    "@xenova/transformers": "^2.6.0"
   }
 }
