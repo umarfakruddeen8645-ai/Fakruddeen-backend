@@ -8,7 +8,7 @@
     "test": "node src/server/test.js",
     "migrate": "npx knex migrate:latest",
     "rollback": "npx knex migrate:rollback",
-    "postinstall": "npm rebuild deepspeech"
+    "postinstall": "npm rebuild deepspeech --build-from-source"
   },
   "author": "Umar Fakruddeen",
   "license": "MIT",
@@ -26,6 +26,7 @@
     "jsonwebtoken": "^9.0.2",
     "knex": "^2.5.1",
     "pg": "^8.11.1",
-    "redis": "^5.12.1"
+    "redis": "^5.12.1",
+    "opencv4nodejs": "^5.6.0"
   }
 }
