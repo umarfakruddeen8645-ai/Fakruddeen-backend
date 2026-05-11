@@ -7,10 +7,14 @@
     "start": "node src/server.js",
     "test": "node src/server/test.js",
     "migrate": "npx knex migrate:latest",
-    "rollback": "npx knex migrate:rollback"
+    "rollback": "npx knex migrate:rollback",
+    "postinstall": "npm rebuild deepspeech"
   },
   "author": "Umar Fakruddeen",
   "license": "MIT",
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "axios": "^1.6.7",
     "bcrypt": "^5.1.0",
