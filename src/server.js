@@ -4,10 +4,11 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const cors = require('cors');
 
-const troubleshooting = require('./server/troubleshooting');
+// 👉 duk modules suna cikin src/ yanzu
+const { runDiagnostics } = require('./troubleshooting');
 const { selfImprove } = require('./selfImprove');
-const { transcribeAudio } = require('./ai');          // 👉 kawai transcribe daga ai.js
-const { detectFace } = require('./face');             // 👉 yanzu muna amfani da face-api.js
+const { transcribeAudio } = require('./ai');
+const { detectFace } = require('./face');
 const { aiAnomalyDetection } = require('./security');
 const { generateToken, hashPassword, comparePassword } = require('./auth');
 
@@ -111,7 +112,7 @@ app.post('/speech', async (req, res, next) => {
 app.post('/vision', async (req, res, next) => {
   try {
     const { imageFile } = req.body;
-    const result = await detectFace(imageFile);   // 👉 async/await
+    const result = await detectFace(imageFile);
     res.json({ vision: result });
   } catch (err) {
     next(err);
