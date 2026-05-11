@@ -3,6 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
 
 // 👉 duk modules suna cikin src/services yanzu
 const { runDiagnostics } = require('./services/troubleshooting');
@@ -30,6 +32,9 @@ const pool = new Pool({
   password: process.env.POSTGRES_PASSWORD,
   port: process.env.DB_PORT || 5432,
 });
+
+// Setup multer for file uploads
+const upload = multer({ dest: 'uploads/' });
 
 // CREATE user
 app.post('/users', async (req, res, next) => {
@@ -97,22 +102,22 @@ app.delete('/tasks/:id', async (req, res, next) => {
   }
 });
 
-// Speech recognition endpoint
-app.post('/speech', async (req, res, next) => {
+// Speech recognition endpoint (file upload)
+app.post('/speech', upload.single('audio'), async (req, res, next) => {
   try {
-    const { audioFile } = req.body;
-    const text = transcribeAudio(audioFile);
+    const filePath = path.join(__dirname, '..', req.file.path);
+    const text = await transcribeAudio(filePath);
     res.json({ transcription: text });
   } catch (err) {
     next(err);
   }
 });
 
-// Face detection endpoint
-app.post('/vision', async (req, res, next) => {
+// Face detection endpoint (file upload)
+app.post('/vision', upload.single('image'), async (req, res, next) => {
   try {
-    const { imageFile } = req.body;
-    const result = await detectFace(imageFile);
+    const filePath = path.join(__dirname, '..', req.file.path);
+    const result = await detectFace(filePath);
     res.json({ vision: result });
   } catch (err) {
     next(err);
