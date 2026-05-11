@@ -4,13 +4,13 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const cors = require('cors');
 
-// 👉 duk modules suna cikin src/ yanzu
-const { runDiagnostics } = require('./troubleshooting');
-const { selfImprove } = require('./selfImprove');
-const { transcribeAudio } = require('./ai');
-const { detectFace } = require('./face');
-const { aiAnomalyDetection } = require('./security');
-const { generateToken, hashPassword, comparePassword } = require('./auth');
+// 👉 duk modules suna cikin src/services yanzu
+const { runDiagnostics } = require('./services/troubleshooting');
+const { selfImprove } = require('./services/selfImprove');
+const { transcribeAudio } = require('./services/ai');
+const { detectFace } = require('./services/face');
+const { aiAnomalyDetection } = require('./services/security');
+const { generateToken, hashPassword, comparePassword } = require('./services/auth');
 
 const app = express();
 app.use(bodyParser.json());
