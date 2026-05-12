@@ -25,14 +25,14 @@ app.use(cors({
   credentials: true
 }));
 
-// ✅ Database connection with env variables
+// ✅ Database connection with SSL enforced
 const pool = new Pool({
   user: process.env.POSTGRES_USER,
-  host: process.env.DB_HOST || 'localhost',   // yanzu zai karɓi DB_HOST daga env
+  host: process.env.DB_HOST,
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
   port: process.env.DB_PORT || 5432,
-  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false
+  ssl: { rejectUnauthorized: false }   // Render PostgreSQL always requires SSL
 });
 
 // Setup multer for file uploads
@@ -159,9 +159,20 @@ app.delete('/tasks/:id', authenticateToken, async (req, res, next) => {
 });
 
 /* ============================
+   DB CHECK ROUTE
+============================ */
+app.get('/db-check', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({ connected: true, time: result.rows[0].now });
+  } catch (err) {
+    res.status(500).json({ connected: false, error: err.message });
+  }
+});
+
+/* ============================
    ERROR HANDLING & SERVER START
 ============================ */
-
 app.use((err, req, res, next) => {
   console.error("Error:", err.stack);
   res.status(500).json({ error: "Internal server error" });
