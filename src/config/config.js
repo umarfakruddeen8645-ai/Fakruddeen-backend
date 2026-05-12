@@ -3,10 +3,10 @@ require('dotenv').config();
 module.exports = {
   db: {
     user: process.env.POSTGRES_USER,
-    host: 'localhost',
+    host: process.env.DB_HOST || 'localhost',   // yanzu zai karɓi DB_HOST daga env
     database: process.env.POSTGRES_DB,
     password: process.env.POSTGRES_PASSWORD,
-    port: 5432,
+    port: process.env.DB_PORT || 5432,
   },
   jwtSecret: process.env.JWT_SECRET
 };

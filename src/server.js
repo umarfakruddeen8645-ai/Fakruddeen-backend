@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 
 // ✅ Flexible CORS config
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['https://trustedclient.com'],
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['https://fakruddeen-backend.onrender.com'],
   methods: ['GET','POST','PUT','DELETE'],
   credentials: true
 }));
@@ -28,10 +28,11 @@ app.use(cors({
 // ✅ Database connection with env variables
 const pool = new Pool({
   user: process.env.POSTGRES_USER,
-  host: process.env.DB_HOST || 'localhost',
+  host: process.env.DB_HOST || 'localhost',   // yanzu zai karɓi DB_HOST daga env
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
   port: process.env.DB_PORT || 5432,
+  ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : false
 });
 
 // Setup multer for file uploads
@@ -78,7 +79,7 @@ app.post('/users', async (req, res) => {
     const user = result.rows[0];
     res.status(201).json({ user, token: generateToken(user) });
   } catch (err) {
-    console.error("Register error:", err.message);
+    console.error("Register error:", err.stack);
     res.status(500).json({ error: "Registration failed" });
   }
 });
@@ -100,7 +101,7 @@ app.post('/login', async (req, res) => {
 
     res.json({ user: { id: user.id, name: user.name, email: user.email }, token: generateToken(user) });
   } catch (err) {
-    console.error("Login error:", err.message);
+    console.error("Login error:", err.stack);
     res.status(500).json({ error: "Login failed" });
   }
 });
@@ -158,65 +159,11 @@ app.delete('/tasks/:id', authenticateToken, async (req, res, next) => {
 });
 
 /* ============================
-   AI & UTILITIES ROUTES
-============================ */
-
-app.post('/speech', upload.single('audio'), async (req, res, next) => {
-  try {
-    const filePath = path.join(__dirname, '..', req.file.path);
-    const text = await transcribeAudio(filePath);
-    res.json({ transcription: text });
-  } catch (err) {
-    next(err);
-  }
-});
-
-app.post('/vision', upload.single('image'), async (req, res, next) => {
-  try {
-    const filePath = path.join(__dirname, '..', req.file.path);
-    const result = await detectFace(filePath);
-    res.json({ vision: result });
-  } catch (err) {
-    next(err);
-  }
-});
-
-app.post('/self-improve', async (req, res, next) => {
-  try {
-    const { taskDescription } = req.body;
-    const result = await selfImprove(taskDescription);
-    res.json({ message: result });
-  } catch (err) {
-    next(err);
-  }
-});
-
-app.post('/troubleshoot', async (req, res, next) => {
-  try {
-    const { deviceInfo } = req.body;
-    const report = runDiagnostics(deviceInfo);
-    res.json({ diagnostics: report });
-  } catch (err) {
-    next(err);
-  }
-});
-
-app.post('/security-check', async (req, res, next) => {
-  try {
-    const { requestData } = req.body;
-    const result = aiAnomalyDetection(requestData);
-    res.json({ securityStatus: result });
-  } catch (err) {
-    next(err);
-  }
-});
-
-/* ============================
    ERROR HANDLING & SERVER START
 ============================ */
 
 app.use((err, req, res, next) => {
-  console.error("Error:", err.message);
+  console.error("Error:", err.stack);
   res.status(500).json({ error: "Internal server error" });
 });
 
