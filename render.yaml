@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: fakruddeen-backend
+    env: node
+    plan: free
+    buildCommand: npm run migrate
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://fakruddeen_user:YrtWTY83wVLrGmIqJONgGh2LQxqoeyPS@dpg-d81rf1brjlhs73ejf010-a.ohio-postgres.render.com/fakruddeen
+      - key: JWT_SECRET
+        value: someStrongSecretKey
+      - key: ALLOWED_ORIGINS
+        value: https://fakruddeen-backend.onrender.com
+    disk:
+      name: uploads
+      mountPath: /uploads
+      sizeGB: 1
+
+  - type: redis
+    name: fakruddeen-cache
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
