@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const cors = require('cors');
 const multer = require('multer');
-const jwt = require('jsonwebtoken');
+const { generateToken, hashPassword, comparePassword } = require('./server/auth');
 
 const app = express();
 app.use(bodyParser.json());
@@ -48,8 +48,21 @@ function authenticateToken(req, res, next) {
 }
 
 /* ============================
-   USER AUTHENTICATION ROUTES
+   ROOT & USERS ROUTES
 ============================ */
+app.get("/", (req, res) => {
+  res.send("Fakruddeen backend is live 🚀");
+});
+
+app.get("/users", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT id, name, email, created_at FROM users");
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
 app.post('/users', async (req, res) => {
   try {
     const { name, email, password } = req.body;

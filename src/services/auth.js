@@ -1,4 +1,3 @@
-// server/auth.js
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -9,7 +8,7 @@ function generateToken(user) {
   return jwt.sign(
     { id: user.id, email: user.email },
     SECRET_KEY,
-    { expiresIn: '1h' }   // token zai ƙare bayan awa ɗaya
+    { expiresIn: '1h' }
   );
 }
 
