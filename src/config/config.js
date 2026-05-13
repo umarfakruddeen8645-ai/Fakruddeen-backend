@@ -4,6 +4,11 @@ const pool = new Pool({
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
   port: process.env.DB_PORT || 5432,
-  ssl: { rejectUnauthorized: false }, // dole ne ya kasance haka
-  keepAlive: true
+  ssl: {
+    require: true,              // tabbatar da SSL
+    rejectUnauthorized: false   // Render certificates ba su da CA
+  },
+  keepAlive: true,              // hana katsewa
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 10000
 });
