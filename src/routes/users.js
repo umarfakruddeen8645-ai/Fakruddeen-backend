@@ -10,12 +10,12 @@ const pool = new Pool({
 
 // ✅ Create user
 router.post('/users', async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
   try {
     const hashed = await hashPassword(password);
     const result = await pool.query(
-      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email',
-      [email, hashed]
+      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email',
+      [name, email, hashed]
     );
     const user = result.rows[0];
     const token = generateToken(user);
@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
     if (!match) return res.status(403).json({ error: 'Invalid credentials' });
 
     const token = generateToken(user);
-    res.json({ user: { id: user.id, email: user.email }, token });
+    res.json({ user: { id: user.id, name: user.name, email: user.email }, token });
   } catch (err) {
     res.status(500).json({ error: 'Login failed' });
   }
@@ -46,7 +46,7 @@ router.post('/login', async (req, res) => {
 // ✅ Get all users
 router.get('/users', async (req, res) => {
   try {
-    const result = await pool.query('SELECT id, email FROM users');
+    const result = await pool.query('SELECT id, name, email FROM users');
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch users' });
