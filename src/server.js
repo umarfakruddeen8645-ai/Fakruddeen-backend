@@ -6,14 +6,6 @@ const cors = require('cors');
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
 
-// 👉 duk modules suna cikin src/services
-const { runDiagnostics } = require('./services/troubleshooting');
-const { selfImprove } = require('./services/selfImprove');
-const { transcribeAudio } = require('./services/ai');
-const { detectFace } = require('./services/face');
-const { aiAnomalyDetection } = require('./services/security');
-const { generateToken, hashPassword, comparePassword } = require('./services/auth');
-
 const app = express();
 app.use(bodyParser.json());
 
@@ -24,17 +16,16 @@ app.use(cors({
   credentials: true
 }));
 
-// ✅ Database connection with SSL enforced + keepAlive
+// ✅ Database connection using DATABASE_URL
 const pool = new Pool({
-  user: process.env.POSTGRES_USER,
-  host: process.env.DB_HOST,
-  database: process.env.POSTGRES_DB,
-  password: process.env.POSTGRES_PASSWORD,
-  port: process.env.DB_PORT || 5432,
-  ssl: { rejectUnauthorized: false },   // Render PostgreSQL always requires SSL
-  keepAlive: true,                      // don rage katsewa
-  connectionTimeoutMillis: 5000,        // idan DB ta yi jinkiri
-  idleTimeoutMillis: 10000              // rage idle disconnect
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    require: true,
+    rejectUnauthorized: false
+  },
+  keepAlive: true,
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 10000
 });
 
 // Setup multer for file uploads
