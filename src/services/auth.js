@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 const SECRET_KEY = process.env.JWT_SECRET;
 
-// Generate JWT token
+// ✅ Generate JWT token
 function generateToken(user) {
   return jwt.sign(
     { id: user.id, name: user.name, email: user.email },
@@ -12,15 +12,33 @@ function generateToken(user) {
   );
 }
 
-// Hash password
+// ✅ Hash password
 async function hashPassword(password) {
   const saltRounds = 10;
   return await bcrypt.hash(password, saltRounds);
 }
 
-// Compare password
+// ✅ Compare password
 async function comparePassword(password, hash) {
   return await bcrypt.compare(password, hash);
 }
 
-module.exports = { generateToken, hashPassword, comparePassword };
+// ✅ Middleware for authentication
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: "Token required" });
+  }
+
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: "Invalid token" });
+    }
+    req.user = user;
+    next();
+  });
+}
+
+module.exports = { generateToken, hashPassword, comparePassword, authenticateToken };
