@@ -8,11 +8,14 @@ const path = require('path');
 const { Canvas, Image, ImageData } = canvas;
 faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
 
-// Load Whisper model once
+// Load Whisper model once (multilingual)
 let transcriber;
 (async () => {
-  // Correct model type for Whisper
-  transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
+  // Sauya daga 'whisper-tiny.en' zuwa multilingual model
+  transcriber = await pipeline(
+    'automatic-speech-recognition',
+    'Xenova/whisper-large-v2'   // ✅ wannan yana gane harsuna da dama (Hausa, Arabic, French, Spanish, Chinese, da sauransu)
+  );
 })();
 
 async function transcribeAudio(filePath) {
@@ -21,7 +24,7 @@ async function transcribeAudio(filePath) {
   }
   const buffer = fs.readFileSync(filePath);
   const result = await transcriber(buffer);
-  return result.text;
+  return result.text; // zai dawo da transcription a harshen da aka yi magana
 }
 
 async function detectFace(imagePath) {
