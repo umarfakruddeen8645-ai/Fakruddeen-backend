@@ -12,4 +12,4 @@ services:
       - key: JWT_SECRET
         value: someStrongSecretKey
       - key: ALLOWED_ORIGINS
-        value: https://fakruddeen-backend.onrender.com
+        value: https://fakruddeen-backend-roip.onrender.com

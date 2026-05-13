@@ -9,7 +9,7 @@ const morgan = require('morgan');
 const logger = require('./services/logger');
 const { generateToken, hashPassword, comparePassword } = require('./services/auth');
 
-const usersRouter = require('./routes/users'); // ✅ Import users routes
+const usersRouter = require('./routes/users');
 
 const app = express();
 app.use(bodyParser.json());
@@ -23,12 +23,12 @@ app.use(morgan('combined', {
 
 // ✅ Flexible CORS config
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['https://fakruddeen-backend.onrender.com'],
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['https://fakruddeen-backend-roip.onrender.com'],
   methods: ['GET','POST','PUT','DELETE'],
   credentials: true
 }));
 
-// ✅ Database connection using DATABASE_URL
+// ✅ Database connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { require: true, rejectUnauthorized: false },
@@ -70,7 +70,6 @@ app.get("/", (req, res) => {
   res.send("Fakruddeen backend is live 🚀");
 });
 
-// ✅ Register users routes
 app.use('/', usersRouter);
 
 /* ============================
@@ -81,7 +80,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // ✅ Render zai saka PORT daidai
 app.listen(PORT, () => {
   logger.info(`Fakruddeen backend running on port ${PORT}`);
 });
