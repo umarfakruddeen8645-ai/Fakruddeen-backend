@@ -13,9 +13,3 @@ services:
         value: someStrongSecretKey
       - key: ALLOWED_ORIGINS
         value: https://fakruddeen-backend.onrender.com
-
-  - type: redis
-    name: fakruddeen-cache
-    plan: free
-    maxmemoryPolicy: allkeys-lru
-    ipAllowList: []
