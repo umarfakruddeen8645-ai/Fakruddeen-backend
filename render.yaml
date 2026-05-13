@@ -3,7 +3,7 @@ services:
     name: fakruddeen-backend
     env: node
     plan: free
-    buildCommand: npm run migrate
+    buildCommand: npm install && npm run migrate
     startCommand: npm start
     autoDeploy: true
     envVars:
