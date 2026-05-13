@@ -6,9 +6,10 @@ const cors = require('cors');
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const morgan = require('morgan');
-const logger = require('./services/logger'); // ✅ ƙirƙiri logger.js
-
+const logger = require('./services/logger');
 const { generateToken, hashPassword, comparePassword } = require('./services/auth');
+
+const usersRouter = require('./routes/users'); // ✅ Import users routes
 
 const app = express();
 app.use(bodyParser.json());
@@ -30,10 +31,7 @@ app.use(cors({
 // ✅ Database connection using DATABASE_URL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    require: true,
-    rejectUnauthorized: false
-  },
+  ssl: { require: true, rejectUnauthorized: false },
   keepAlive: true,
   connectionTimeoutMillis: 5000,
   idleTimeoutMillis: 10000
@@ -72,7 +70,8 @@ app.get("/", (req, res) => {
   res.send("Fakruddeen backend is live 🚀");
 });
 
-// ... sauran routes kamar yadda ka rubuta
+// ✅ Register users routes
+app.use('/', usersRouter);
 
 /* ============================
    ERROR HANDLING & SERVER START
