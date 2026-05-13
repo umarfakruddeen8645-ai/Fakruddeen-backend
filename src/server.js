@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const cors = require('cors');
 const multer = require('multer');
-const path = require('path');
 const jwt = require('jsonwebtoken');
 
 // 👉 duk modules suna cikin src/services
@@ -25,14 +24,17 @@ app.use(cors({
   credentials: true
 }));
 
-// ✅ Database connection with SSL enforced
+// ✅ Database connection with SSL enforced + keepAlive
 const pool = new Pool({
   user: process.env.POSTGRES_USER,
   host: process.env.DB_HOST,
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
   port: process.env.DB_PORT || 5432,
-  ssl: { rejectUnauthorized: false }   // Render PostgreSQL always requires SSL
+  ssl: { rejectUnauthorized: false },   // Render PostgreSQL always requires SSL
+  keepAlive: true,                      // don rage katsewa
+  connectionTimeoutMillis: 5000,        // idan DB ta yi jinkiri
+  idleTimeoutMillis: 10000              // rage idle disconnect
 });
 
 // Setup multer for file uploads
@@ -57,8 +59,6 @@ function authenticateToken(req, res, next) {
 /* ============================
    USER AUTHENTICATION ROUTES
 ============================ */
-
-// REGISTER user
 app.post('/users', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -84,7 +84,6 @@ app.post('/users', async (req, res) => {
   }
 });
 
-// LOGIN user
 app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -109,8 +108,6 @@ app.post('/login', async (req, res) => {
 /* ============================
    TASK MANAGEMENT ROUTES
 ============================ */
-
-// READ tasks (protected)
 app.get('/tasks', authenticateToken, async (req, res, next) => {
   try {
     const result = await pool.query('SELECT * FROM tasks WHERE user_id=$1', [req.user.id]);
@@ -120,7 +117,6 @@ app.get('/tasks', authenticateToken, async (req, res, next) => {
   }
 });
 
-// CREATE task (protected)
 app.post('/tasks', authenticateToken, async (req, res, next) => {
   try {
     const { title, description, status } = req.body;
@@ -134,7 +130,6 @@ app.post('/tasks', authenticateToken, async (req, res, next) => {
   }
 });
 
-// UPDATE task (protected)
 app.put('/tasks/:id', authenticateToken, async (req, res, next) => {
   try {
     const { title, description, status } = req.body;
@@ -148,7 +143,6 @@ app.put('/tasks/:id', authenticateToken, async (req, res, next) => {
   }
 });
 
-// DELETE task (protected)
 app.delete('/tasks/:id', authenticateToken, async (req, res, next) => {
   try {
     await pool.query('DELETE FROM tasks WHERE id=$1', [req.params.id]);
