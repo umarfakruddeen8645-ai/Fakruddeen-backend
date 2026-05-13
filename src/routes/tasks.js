@@ -1,59 +1,48 @@
-const express = require('express');
-const router = express.Router();
-const { Pool } = require('pg');
-const { authenticateToken } = require('../middleware/auth');
+// src/services/auth.js
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const logger = require('./logger');
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { require: true, rejectUnauthorized: false }
-});
+const SECRET_KEY = process.env.JWT_SECRET;
 
-// Create task
-router.post('/tasks', authenticateToken, async (req, res) => {
-  const { title, description, status } = req.body;
-  try {
-    const result = await pool.query(
-      'INSERT INTO tasks (user_id, title, description, status) VALUES ($1, $2, $3, $4) RETURNING *',
-      [req.user.id, title, description, status]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to create task' });
+// ✅ Generate JWT token
+function generateToken(user) {
+  return jwt.sign(
+    { id: user.id, name: user.name, email: user.email },
+    SECRET_KEY,
+    { expiresIn: '1h' }
+  );
+}
+
+// ✅ Hash password
+async function hashPassword(password) {
+  const saltRounds = 10;
+  return await bcrypt.hash(password, saltRounds);
+}
+
+// ✅ Compare password
+async function comparePassword(password, hash) {
+  return await bcrypt.compare(password, hash);
+}
+
+// ✅ Middleware for authentication
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    logger.warn("Token missing in request");
+    return res.status(401).json({ error: "Token required" });
   }
-});
 
-// Get tasks
-router.get('/tasks', authenticateToken, async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM tasks WHERE user_id=$1', [req.user.id]);
-    res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch tasks' });
-  }
-});
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) {
+      logger.error("Invalid token: %o", err);
+      return res.status(403).json({ error: "Invalid token" });
+    }
+    req.user = user;
+    next();
+  });
+}
 
-// Update task
-router.put('/tasks/:id', authenticateToken, async (req, res) => {
-  const { title, description, status } = req.body;
-  try {
-    const result = await pool.query(
-      'UPDATE tasks SET title=$1, description=$2, status=$3, updated_at=NOW() WHERE id=$4 AND user_id=$5 RETURNING *',
-      [title, description, status, req.params.id, req.user.id]
-    );
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to update task' });
-  }
-});
-
-// Delete task
-router.delete('/tasks/:id', authenticateToken, async (req, res) => {
-  try {
-    await pool.query('DELETE FROM tasks WHERE id=$1 AND user_id=$2', [req.params.id, req.user.id]);
-    res.json({ message: 'Task deleted' });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to delete task' });
-  }
-});
-
-module.exports = router;
+module.exports = { generateToken, hashPassword, comparePassword, authenticateToken };
